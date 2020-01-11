@@ -10,7 +10,7 @@ Right now this is an early alpha version with limited type checking and error ha
 
 ### Methods
 
-### get_data()
+#### get_data()
 * **Parameters**:
   * *(Optional)* rec_id : int - RecId of the data you want to retrieve
   * output : str - Output format, either df or dict
