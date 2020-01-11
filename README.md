@@ -52,6 +52,11 @@ Right now this is an early alpha version with limited type checking and error ha
 
 # To Do:
 
+## Planned Authentication:
+
+* Authorization Code
+* Basic Auth
+
 ## Planned Methods:
 
 * **Data:**
