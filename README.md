@@ -29,7 +29,7 @@ Right now this is an early alpha version with limited type checking and error ha
   * List Data History: GET /data/{id}/versions
   * Retrieve Historical Data: GET /data/{id}/v/{ver}
 * **Usage**:
-  * If no ver_id is provided lists all stored data versions, if ver_id is provided, retrieves data from specified data set version.
+  * If no ver_id is provided lists all stored data versions, if ver_id is provided, retrieves data from specified data set version. Must have Data History enabled on data set to use.
 
 ### create_data()
 * **Parameters**:
