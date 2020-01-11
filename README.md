@@ -20,7 +20,7 @@ Right now this is an early alpha version with limited type checking and error ha
 * **Usage**:
   * If no rec_id is provided lists all data on account, if rec_id is provided, retrieves data from specified data set.
 
-### get_data_history()
+#### get_data_history()
 * **Parameters**:
   * rec_id : int - RecId of the data you want to retrieve
   * *(Optional)* ver_id : int - Version ID of the data you want to retrieve from your data set
@@ -31,7 +31,7 @@ Right now this is an early alpha version with limited type checking and error ha
 * **Usage**:
   * If no ver_id is provided lists all stored data versions, if ver_id is provided, retrieves data from specified data set version. Must have Data History enabled on data set to use.
 
-### create_data()
+#### create_data()
 * **Parameters**:
   * name : str - Name of data table created in ClicData. Must be unique to account.
   * *(Optional)* desc : str - Long form description attached to table in ClicData.
@@ -41,7 +41,7 @@ Right now this is an early alpha version with limited type checking and error ha
 * **Usage**:
   * Creates and empty custom data table on your ClicData account, which can then be appended to
 
-### append_data()
+#### append_data()
 * **Parameters**:
   * rec_id : int - id of your data in ClicData
   * data : pandas.Dataframe - df containing the data you want to append.
