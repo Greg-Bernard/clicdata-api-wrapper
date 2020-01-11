@@ -6,9 +6,9 @@ Currently only supports the Client Credentials authentication method. See how to
 Right now this is an early alpha version with limited type checking and error handling. As development progresses more handling will be built in and more API functionality will be incorporated.
 
 
-# Currently working:
+## Currently working:
 
-## Methods
+### Methods
 
 ### get_data()
 * **Parameters**:
@@ -50,14 +50,14 @@ Right now this is an early alpha version with limited type checking and error ha
 * **Usage**:
   * Append your data to an existing dataset
 
-# To Do:
+## To Do:
 
-## Planned Authentication:
+### Planned Authentication:
 
 * Authorization Code
 * Basic Auth
 
-## Planned Methods:
+### Planned Methods:
 
 * **Data:**
   * Update Data: PUT /data/{id}/row
