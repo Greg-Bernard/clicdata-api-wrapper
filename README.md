@@ -12,8 +12,8 @@ Right now this is an early alpha version with limited type checking and error ha
 
 #### get_data()
 * **Parameters**:
-  * *(Optional)* rec_id : int - RecId of the data you want to retrieve
-  * output : str - Output format, either df or dict
+  * *(Optional)* **rec_id** : int - RecId of the data you want to retrieve
+  * **output** : str - Output format, either df or dict
 * **Enpoints**:
   * List Data: GET /data
   * Retrieve Data: GET /data/{id}
@@ -22,9 +22,9 @@ Right now this is an early alpha version with limited type checking and error ha
 
 #### get_data_history()
 * **Parameters**:
-  * rec_id : int - RecId of the data you want to retrieve
-  * *(Optional)* ver_id : int - Version ID of the data you want to retrieve from your data set
-  * output : str - Output format, either df or dict
+  * **rec_id** : int - RecId of the data you want to retrieve
+  * *(Optional)* **ver_id** : int - Version ID of the data you want to retrieve from your data set
+  * **output** : str - Output format, either df or dict
 * **Enpoints**:
   * List Data History: GET /data/{id}/versions
   * Retrieve Historical Data: GET /data/{id}/v/{ver}
@@ -33,9 +33,9 @@ Right now this is an early alpha version with limited type checking and error ha
 
 #### create_data()
 * **Parameters**:
-  * name : str - Name of data table created in ClicData. Must be unique to account.
-  * *(Optional)* desc : str - Long form description attached to table in ClicData.
-  * cols : dict - Column name as key, data type as value.
+  * **name** : str - Name of data table created in ClicData. Must be unique to account.
+  * *(Optional)* **desc** : str - Long form description attached to table in ClicData.
+  * **cols** : dict - Column name as key, data type as value.
 * **Enpoints**:
   * Create New Custom Table: POST /data
 * **Usage**:
@@ -43,8 +43,8 @@ Right now this is an early alpha version with limited type checking and error ha
 
 #### append_data()
 * **Parameters**:
-  * rec_id : int - id of your data in ClicData
-  * data : pandas.Dataframe - df containing the data you want to append.
+  * **rec_id** : int - id of your data in ClicData
+  * **data** : pandas.Dataframe - df containing the data you want to append.
 * **Enpoints**:
   * Append Data: POST /data/{id}/row
 * **Usage**:
@@ -52,9 +52,9 @@ Right now this is an early alpha version with limited type checking and error ha
   
 #### static_send_data()
 * **Parameters**:
-  * name : str - Name of data set to create, must be unique to your account
-  * (Optional) desc : str - Optional, long-form details about your data
-  * data : pandas.Dataframe - Data to upload
+  * **name** : str - Name of data set to create, must be unique to your account
+  * (Optional) **desc** : str - Optional, long-form details about your data
+  * **data** : pandas.Dataframe - Data to upload
 * **Usage**:
   * Uses create_data() to create a static data set, then uses append_data() to add the input data to it. Note: Input must be a dataframe.
 
