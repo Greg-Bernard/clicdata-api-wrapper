@@ -1,5 +1,5 @@
 # clicdata-python
-A package to work with your ClicData data natively in Python.
+A package to work with your ClicData account natively in Python.
 
 Currently only supports the Client Credentials authentication method. See how to generate your Client ID and Client Secret here: https://app.clicdata.com/help/apidocumentation/api-auth-oauth-client
 
