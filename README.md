@@ -50,7 +50,7 @@ Right now this is an early alpha version with limited type checking and error ha
 * **Usage**:
   * Append your data to an existing dataset
   
-### static_send_data()
+#### static_send_data()
 * **Parameters**:
   * name : str - Name of data set to create, must be unique to your account
   * (Optional) desc : str - Optional, long-form details about your data
