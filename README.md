@@ -49,6 +49,14 @@ Right now this is an early alpha version with limited type checking and error ha
   * Append Data: POST /data/{id}/row
 * **Usage**:
   * Append your data to an existing dataset
+  
+### static_send_data()
+* **Parameters**:
+  * name : str - Name of data set to create, must be unique to your account
+  * (Optional) desc : str - Optional, long-form details about your data
+  * data : pandas.Dataframe - Data to upload
+* **Usage**:
+  * Uses create_data() to create a static data set, then uses append_data() to add the input data to it. Note: Input must be a dataframe.
 
 ## To Do:
 
