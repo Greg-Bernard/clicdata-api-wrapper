@@ -5,6 +5,8 @@ Currently only supports the Client Credentials authentication method. See how to
 
 Right now this is an early alpha version with limited type checking and error handling. As development progresses more handling will be built in and more API functionality will be incorporated.
 
+*Not officially affiliated with ClicData*
+
 
 ## Currently working:
 
