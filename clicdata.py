@@ -20,6 +20,8 @@ class Connection:
         self.client_id = client_id
         self.client_secret = client_secret
         self.access_token, self.token_expire_time, _ = self.initialize()
+        self.header = {"Authorization": "Bearer " + self.access_token,
+                       "accept": "application/json"}
 
     ###
     # Methods
@@ -43,6 +45,8 @@ class Connection:
         """To refresh an expired token"""
         if datetime.now() >= self.token_expire_time:
           self.access_token, self.token_expire_time, _ = self.initialize()
+          self.header = {"Authorization": "Bearer " + self.access_token,
+                        "accept": "application/json"}
 
     def get_data(self, rec_id=None, output='df'):
         """Retrieve list of data sources or retrieve the contents of a data source
@@ -51,11 +55,12 @@ class Connection:
         output : str
             Output format, either df or dict
         """
-        self.reinitialize()
-        auth_header = {"Authorization": "Bearer " + self.access_token}
+
         endpoint = self.url + "data"
         if rec_id is None:
-            data = requests.get(endpoint, headers=auth_header)
+            # Check token for expiry
+            self.reinitialize()
+            data = requests.get(endpoint, headers=self.header)
             # return data.json()
             if output == 'df':
                 return pd.DataFrame.from_dict(data.json().get('data'))
@@ -66,12 +71,21 @@ class Connection:
             b = True
             data = []
             while b:
-                d = requests.get(f"{endpoint}/{rec_id}",
-                                 headers=auth_header,
-                                 params={"page": i}).json()
-                b = d.get('has_more_data')
+              # print(f"{endpoint}/{rec_id}")
+              # print(self.header)
+              # Check token for expiry
+              self.reinitialize()
+              d = requests.get(f"{endpoint}/{rec_id}",
+                                headers=self.header,
+                                params={"page": i})
+              if d.status_code == 200:
+                b = d.json().get('has_more_data')
                 i += 1
-                data = data + d.get('data')
+                data = data + d.json().get('data') 
+              else:
+                b = False
+                print(f"Ran into issues processing your request \nStatus Code: {d.status_code}\n"+
+                      f"Content: {d.text}\nData processed before the error returned.")
             if output == 'df':
                 return pd.DataFrame.from_dict(data)
             elif output == 'dict':
@@ -87,16 +101,15 @@ class Connection:
         output : str
             Output format, either df or dict
         """
-        self.reinitialize()
-
-        auth_header = {"Authorization": "Bearer " + self.access_token}
+        
 
         if rec_id is None:
             raise Exception('Please enter a valid data clone RecId.')
         else:
             if ver_id is None:
                 endpoint = self.url + f"data/{rec_id}/versions"
-                data = requests.get(endpoint, headers=auth_header)
+                self.reinitialize()
+                data = requests.get(endpoint, headers=self.header)
                 if output == 'df':
                     df = pd.DataFrame.from_dict(data.json().get('versions'))
                     df["data_rec_id"] = rec_id
@@ -112,14 +125,16 @@ class Connection:
                 b = True
                 data = []
                 while b:
-                    d = requests.get(endpoint,
-                                     headers=auth_header,
-                                     params={"page": i})
-                    if d.status_code != 200:
-                        raise Exception('Please enter a valid data RecId or Version Number for your data.')
-                    b = d.json().get('has_more_data')
-                    i += 1
-                    data = data + d.json().get('data')
+                  self.reinitialize()
+                  d = requests.get(endpoint,
+                                    headers=self.header,
+                                    params={"page": i})
+                  if d.status_code != 200:
+                      raise Exception('Please enter a valid data RecId or Version Number for your data.')
+                  b = d.json().get('has_more_data')
+                  i += 1
+                  print(d.json())
+                  data = data + d.json().get('data')
                 if output == 'df':
                     return pd.DataFrame.from_dict(data)
                 elif output == 'dict':
@@ -134,7 +149,6 @@ class Connection:
         def: dict
             Column name as key, data type as value.
         """
-
         self.reinitialize()
 
         valid_data_types = ['text','number','datetime','date','percentage','checkbox','dropdown','id']
@@ -147,7 +161,6 @@ class Connection:
             'timedelta[ns]':'text',
             'category':'text'
         }
-        auth_header = {"Authorization": "Bearer " + self.access_token}
 
         if name is None:
             raise Exception('Please enter a name for your data set')
@@ -173,7 +186,7 @@ class Connection:
                 "description": desc,
                 "columns": columns
             }
-            post = requests.post(endpoint, headers=auth_header, json=body)
+            post = requests.post(endpoint, headers=self.header, json=body)
             return post
 
     def append_data(self, rec_id=None, data=None):
@@ -183,11 +196,7 @@ class Connection:
         data : pandas.Dataframe
             df containing the data you want to append
         """
-
         self.reinitialize()
-
-        auth_header = {"Authorization": "Bearer " + self.access_token,
-                       "accept": "application/json"}
 
         if rec_id is None:
           raise Exception('Please enter a valid data clone RecId.')
@@ -210,7 +219,7 @@ class Connection:
               "data": data_set
           }
           post = requests.post(endpoint,
-                                headers=auth_header,
+                                headers=self.header,
                                 json=body)
           return post
 
@@ -223,9 +232,8 @@ class Connection:
         data : pandas.Dataframe
             Data to upload
         """
-
         self.reinitialize()
-        auth_header = {"Authorization": "Bearer " + self.access_token}
+        self.header
 
         if name is None:
           raise Exception('Please enter a name for your data set.')
