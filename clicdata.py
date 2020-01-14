@@ -174,7 +174,7 @@ class Connection:
                 "columns": columns
             }
             post = requests.post(endpoint, headers=auth_header, json=body)
-          return post
+            return post
 
     def append_data(self, rec_id=None, data=None):
         """Append your data to an existing dataset
@@ -212,7 +212,7 @@ class Connection:
           post = requests.post(endpoint,
                                 headers=auth_header,
                                 json=body)
-        return post
+          return post
 
     def static_send_data(self, name=None, desc="", data=None):
         """ Creates a static data set in ClicData using a pandas dataframe
