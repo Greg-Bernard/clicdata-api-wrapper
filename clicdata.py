@@ -232,8 +232,6 @@ class Connection:
         data : pandas.Dataframe
             Data to upload
         """
-        self.reinitialize()
-        self.header
 
         if name is None:
           raise Exception('Please enter a name for your data set.')
