@@ -114,7 +114,6 @@ get_data(s)
 
 * **Data:**
   * Update Data: PUT /data/{id}/row
-  * Delete Data: DELETE /data/{id}/row
 * **Account:**
   * User Activity: GET /account/activity/users
   * Dashboard Activity: GET /account/activity/dashboards
