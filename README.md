@@ -35,7 +35,7 @@ get_data(s)
 
 Basic Auth Example:
 ```
-s = Session(client_id='youridhere', client_secret='yoursecrethere')
+s = Session(client_id='youridhere', username='yourplaintextusername', password='yourplaintextpassword')
 get_data(s)
 ```
 *returns dataframe containing list of data on your account*
