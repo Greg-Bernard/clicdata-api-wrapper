@@ -2,8 +2,10 @@
 A package to work with your ClicData account natively in Python.
 
 Currently only supports the Client Credentials or Basic authentication methods. 
-* See how to generate your Client ID and Client Secret for Client Credentials here: https://app.clicdata.com/help/apidocumentation/api-auth-oauth-client
-* See how to generate your Client ID for Basic here: https://app.clicdata.com/help/apidocumentation/api-auth-basic
+* See how to generate your Client ID and Client Secret for Client Credentials here: 
+ https://app.clicdata.com/help/apidocumentation/api-auth-oauth-client
+* See how to generate your Client ID for Basic here: 
+ https://app.clicdata.com/help/apidocumentation/api-auth-basic
 
 Right now this is an early alpha version with limited type checking and error handling. As development progresses more handling will be built in and more API functionality will be incorporated.
 
