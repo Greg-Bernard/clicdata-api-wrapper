@@ -28,14 +28,14 @@ Required to initialize this class to feed into functions included in this librar
 
 Client Credentials Example:
 ```
-s = Session(client_id='youridhere', client_secret='yoursecrethere')
+s = Session(auth_method='client_credentials', client_id='youridhere', client_secret='yoursecrethere')
 get_data(s)
 ```
 *returns dataframe containing list of data on your account*
 
 Basic Auth Example:
 ```
-s = Session(client_id='youridhere', username='yourplaintextusername', password='yourplaintextpassword')
+s = Session(auth_method='basic', client_id='youridhere', username='yourplaintextusername', password='yourplaintextpassword')
 get_data(s)
 ```
 *returns dataframe containing list of data on your account*
