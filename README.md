@@ -1,3 +1,4 @@
+*Not officially affiliated with ClicData*
 # clicdata-python
 A package to work with your ClicData account natively in Python.
 
@@ -8,8 +9,6 @@ Currently only supports the Client Credentials or Basic authentication methods.
  https://app.clicdata.com/help/apidocumentation/api-auth-basic
 
 Right now this is an early alpha version with limited type checking and error handling. As development progresses more handling will be built in and more API functionality will be incorporated.
-
-*Not officially affiliated with ClicData*
 
 **Example Use:**
 Returns list of all dashboards on your account with additional meta data
