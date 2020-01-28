@@ -108,10 +108,6 @@ get_data(s)
 
 ## To Do:
 
-### Planned Authentication:
-
-* Authorization Code
-
 ### Planned Methods:
 
 * **Data:**
