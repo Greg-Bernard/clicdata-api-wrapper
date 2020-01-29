@@ -139,6 +139,11 @@ get_data(s)
 ### Planned Methods:
 
 * **Data:**
+  * Recreate Data: POST /data/{id}/recreate
+  * Reload Data: POST /data/{id}/rebuild
+  * Append Data: POST /data/{id}/append
+  * Update Data: POST /data/{id}/update
+  * Update/Append Data: POST /data/{id}/updateappend
   * Update Data: PUT /data/{id}/row
 * **Account:**
   * User Activity: GET /account/activity/users
