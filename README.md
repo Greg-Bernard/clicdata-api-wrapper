@@ -44,14 +44,14 @@ if __name__ == "__main__":
 
 Required to initialize this class to feed into functions included in this library. This class with authenticate your connection and re-authorize when necessary.
 
-Client Credentials Example:
+**Client Credentials Example:**
 ```
 s = Session(auth_method='client_credentials', client_id='youridhere', client_secret='yoursecrethere')
 get_data(s)
 ```
 *returns dataframe containing list of data on your account*
 
-Basic Auth Example:
+**Basic Auth Example:**
 ```
 s = Session(auth_method='basic', client_id='youridhere', username='yourplaintextusername', password='yourplaintextpassword')
 get_data(s)
