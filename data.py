@@ -1,9 +1,29 @@
-import oauthlib.oauth2
 import requests
-from requests_oauthlib import OAuth2Session
-from datetime import datetime
-from datetime import timedelta
 import pandas as pd
+
+
+###
+# Helper Functions
+###
+
+def retrieve_paginated_data(session=None, endpoint=None):
+    page = 1
+    has_more_data = True
+    data = []
+    while has_more_data:
+        session.reinitialize()
+        d = requests.get(endpoint,
+                         headers=session.header,
+                         params={"page": page})
+        if d.status_code == 200:
+            has_more_data = d.json().get('has_more_data')
+            page += 1
+            data = data + d.json().get('data')
+        else:
+            has_more_data = False
+            print(f"Ran into issues processing your request \nStatus Code: {d.status_code}\n" +
+                  f"Content: {d.text}\nData processed before the error returned")
+    return data
 
 
 ###
@@ -18,8 +38,8 @@ def get_data(session=None, rec_id=None, output='df'):
     output : str
         Output format, either df or dict
     """
-    endpoint = session.url + "data"
-    if rec_id is None:
+    if type(rec_id) != int:
+        endpoint = session.url + "data"
         # Check token for expiry
         session.reinitialize()
         data = requests.get(endpoint, headers=session.header)
@@ -29,25 +49,8 @@ def get_data(session=None, rec_id=None, output='df'):
         elif output == 'dict':
             return data.json().get('data')
     else:
-        i = 1
-        b = True
-        data = []
-        while b:
-            # print(f"{endpoint}/{rec_id}")
-            # print(self.header)
-            # Check token for expiry
-            session.reinitialize()
-            d = requests.get(f"{endpoint}/{rec_id}",
-                             headers=session.header,
-                             params={"page": i})
-            if d.status_code == 200:
-                b = d.json().get('has_more_data')
-                i += 1
-                data = data + d.json().get('data')
-            else:
-                b = False
-                print(f"Ran into issues processing your request \nStatus Code: {d.status_code}\n" +
-                      f"Content: {d.text}\nData processed before the error returned.")
+        endpoint = f"{session.url}data/{rec_id}"
+        data = retrieve_paginated_data(session=session, endpoint=endpoint)
         if output == 'df':
             return pd.DataFrame.from_dict(data)
         elif output == 'dict':
@@ -55,7 +58,7 @@ def get_data(session=None, rec_id=None, output='df'):
         # return pd.DataFrame.from_dict(data.json().get('data'))
 
 
-def get_data_history(session=None, rec_id=None, ver_id=None, output='df'):
+def get_data_history(session=None, id=None, ver_id=None, output='df'):
     """Retrieve list of data sources or retrieve the contents of a data source
     session : custom class
         Session class passed from ClicData session module
@@ -66,45 +69,33 @@ def get_data_history(session=None, rec_id=None, ver_id=None, output='df'):
     output : str
         Output format, either df or dict
     """
-    if rec_id is None:
+    if id is None:
         raise Exception('Please enter a valid data clone RecId.')
     else:
         if ver_id is None:
-            endpoint = session.url + f"data/{rec_id}/versions"
+            endpoint = session.url + f"data/{id}/versions"
+            # Check token for expiry
             session.reinitialize()
             data = requests.get(endpoint, headers=session.header)
             if output == 'df':
                 df = pd.DataFrame.from_dict(data.json().get('versions'))
-                df["data_rec_id"] = rec_id
+                df["data_rec_id"] = id
                 return df
             elif output == 'dict':
                 data_dict = data.json().get('versions')
                 for version in data_dict:
-                    version.update({"data_rec_id": rec_id})
+                    version.update({"data_rec_id": id})
                 return data_dict
         else:
-            endpoint = session.url + f"data/{rec_id}/v/{ver_id}"
-            i = 1
-            b = True
-            data = []
-            while b:
-                session.reinitialize()
-                d = requests.get(endpoint,
-                                 headers=session.header,
-                                 params={"page": i})
-                if d.status_code != 200:
-                    raise Exception('Please enter a valid data RecId or Version Number for your data.')
-                b = d.json().get('has_more_data')
-                i += 1
-                print(d.json())
-                data = data + d.json().get('data')
+            endpoint = session.url + f"data/{id}/v/{ver_id}"
+            data = retrieve_paginated_data(session=session, endpoint=endpoint)
             if output == 'df':
                 return pd.DataFrame.from_dict(data)
             elif output == 'dict':
                 return data
 
 
-def create_data(session=None, name=None, desc="", cols=None):
+def create_data(session=None, name=None, description="", cols=None):
     """Creates an empty custom table in ClicData
     session : custom class
         Session class passed from ClicData session module
@@ -115,7 +106,9 @@ def create_data(session=None, name=None, desc="", cols=None):
     def: dict
         Column name as key, data type as value.
     """
-    valid_data_types = ['text', 'number', 'datetime', 'date', 'percentage', 'checkbox', 'dropdown', 'id']
+    # List of valid ClicData data types to input
+    valid_data_types = ['text', 'number', 'datetime', 'date', 'percentage', 'checkbox', 'dropdown', 'rec_id']
+    # Dictionary containing Pandas data types and the converted type for ClicData
     pandas_convert = {
         'object': 'text',
         'int64': 'number',
@@ -142,14 +135,13 @@ def create_data(session=None, name=None, desc="", cols=None):
                                 f', please enter your data with one of the following: {valid_data_types}.')
             column_def = {"name": i,
                           "data_type": data_type}
-            # num = 0
             columns.append(column_def)
-        # print(columns)
         body = {
             "name": name,
-            "description": desc,
+            "description": description,
             "columns": columns
         }
+        # Check token for expiry
         session.reinitialize()
         post = requests.post(endpoint, headers=session.header, json=body)
         return post
@@ -160,31 +152,29 @@ def append_data(session=None, rec_id=None, data=None):
     session : custom class
         Session class passed from ClicData session module
     rec_id : int
-        id of your data in ClicData
+        rec_id of your data in ClicData
     data : pandas.Dataframe
         df containing the data you want to append
     """
-    if rec_id is None:
+    if type(rec_id) != int:
         raise Exception('Please enter a valid data clone RecId.')
     elif data is None:
         raise Exception('Please enter a data set to append')
     else:
         endpoint = session.url + f'data/{rec_id}/row'
-        d = data.to_dict(orient='index')
-        print(d)
+        formatted_data = data.to_dict(orient='index')
         data_set = []
-        for k, v in d.items():
+        for k, v in formatted_data.items():
             row = []
-            num = 0
-            for col, val in v.items():
-                cell = {"column": col,
-                        "value": val}
+            for column, value in v.items():
+                cell = {"column": column,
+                        "value": value}
                 row.append(cell)
-                num += 1
             data_set.append(row)
         body = {
             "data": data_set
         }
+        # Check token for expiry
         session.reinitialize()
         post = requests.post(endpoint,
                              headers=session.header,
@@ -192,7 +182,7 @@ def append_data(session=None, rec_id=None, data=None):
         return post
 
 
-def static_send_data(session=None, name=None, desc="", data=None):
+def create_and_append(session=None, name=None, description="", data=None):
     """ Creates a static data set in ClicData using a pandas dataframe
     session : custom class
         Session class passed from ClicData session module
@@ -209,15 +199,42 @@ def static_send_data(session=None, name=None, desc="", data=None):
         raise Exception('Please enter a data.')
     else:
         columns = data.dtypes.to_dict()
-        # print(columns)
-        rec_id = session.create_data(name=name, desc=desc, cols=columns)
+        rec_id = create_data(session=session, name=name, description=description, cols=columns)
         try:
             rec_id = int(rec_id.text)
         except ValueError as e:
             raise Exception(
                 f'There appears to be an issue with the connection. Creating data set returned:\n{rec_id.text}')
-        status = session.append_data(rec_id=rec_id, data=data)
+        status = append_data(session=session, rec_id=rec_id, data=data)
     return status.text
+
+
+def rebuild_data(session=None, rec_id=None, method='reload'):
+    """ Rebuild a data set using the specified method
+        session : custom class
+            Session class passed from ClicData session module
+        rec_id : int
+            rec_id of your data in ClicData
+        method : str
+            reload method to refresh the data with
+        """
+    valid_methods = [
+        "reload",
+        "recreate",
+        "update",
+        "updateappend",
+        "append"
+    ]
+    if session is None:
+        raise Exception("Please enter a valid Session() object.")
+    if type(rec_id) != int:
+        raise Exception("Please enter a valid data clone RecId as an integer.")
+    if method not in valid_methods:
+        raise Exception(f"Please enter a valid method: {valid_methods}")
+
+    endpoint = f"{session.url}data/{rec_id}/{method}"
+    response = requests.post(endpoint, header=session.header)
+    return response.text
 
 
 def delete_data(session=None, rec_id=None, filters=None, multiple_rows='all'):
@@ -232,7 +249,7 @@ def delete_data(session=None, rec_id=None, filters=None, multiple_rows='all'):
         Data to upload
     """
 
-    if rec_id is None or type(rec_id) != int:
+    if type(rec_id) != int:
         raise Exception('Please enter a valid data clone RecId as an integer.')
     if filters is None or type(filters) != dict:
         raise Exception("Please enter a dict of column names (keys) and values to filter.")
@@ -247,6 +264,33 @@ def delete_data(session=None, rec_id=None, filters=None, multiple_rows='all'):
             "multiplerows": multiple_rows,
             "find": find
         }
+        # Check token for expiry
         session.reinitialize()
         delete = requests.delete(endpoint, body=body, headers=session.header)
         return delete.text
+
+
+###
+# WIP ---------------------------------------------------------------------------------
+def update_data(session=None, rec_id=None, data=None, filters=None, multiple_rows='all'):
+    ###
+    # Replace matching data in ClicData data file based on filter provided
+    ###
+
+    # Check token for expiry
+    session.reinitialize()
+    auth_header = {"Authorization": "Bearer " + session.access_token}
+
+    if type(rec_id) != int:
+        raise Exception('Please enter a valid data clone RecId.')
+    elif data is None:
+        raise Exception('Please provide data to insert')
+    else:
+        endpoint = f"{session.url}data/{rec_id}/row"
+        if filters is not None:
+            {}
+        body = {
+            "multiplerows": multiple_rows,
+            "find": [],
+            "data": []
+        }

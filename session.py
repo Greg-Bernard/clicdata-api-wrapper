@@ -1,9 +1,8 @@
 import oauthlib.oauth2
-import requests
 from requests_oauthlib import OAuth2Session
+import requests
 from datetime import datetime
 from datetime import timedelta
-import pandas as pd
 import base64
 
 
@@ -34,11 +33,13 @@ class Session:
             Client secret provided from your ClicData account
         """
         self.url = "https://api.clicdata.com/"
+        self.auth_method = auth_method
 
         if auth_method == 'client_credentials':
             self.client_id = client_id
             self.client_secret = client_secret
             token_type = 'Bearer '
+            self.access_token, self.token_expire_time, _ = self._initialize()
         elif auth_method == 'basic':
             if type(client_id) != str:
                 raise Exception("Please enter a valid client_id (string).")
@@ -61,8 +62,6 @@ class Session:
             raise Exception("Please provide a valid authentication type. Choose from:\n"+
                             "basic, client_credentials, or authorization code")
 
-        self.auth_method = auth_method
-        self.access_token, self.token_expire_time, _ = self._initialize()
         self.header = {"Authorization": token_type + self.access_token,
                        "accept": "application/json"}
 
