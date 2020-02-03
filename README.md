@@ -41,8 +41,14 @@ if __name__ == '__main__':
   * *(Optional)* **username** : str - username as a string, required only for **Basic**
   * *(Optional)* **password** : str - password as a string, required only for **Basic**
 
-Required to initialize this class to feed into functions included in this library. This class with authenticate your connection and re-authorize when necessary.
+This class is used by SessionManager to open a single session for the entire runtime or by each individual class directly to open one-off sessions.
 
+### SessionManager
+* **Parameters**:
+  * **\*\*connection_params**: \*\*Kwargs to pass-through required session parameters to Session object
+  
+This class intializes Session as a class parameter and uses @classmethod to persist the session token through all modules used in this library. It's passed automatically to other classes as a parameter unless otherwise specified.
+  
 **Client Credentials Example:**
 ```
 SessionManager(auth_method='client_credentials', 
@@ -62,9 +68,9 @@ list_data_sets = Data().get_data()
 ```
 *returns dataframe containing list of data on your account*
 
-## Modules
+## Modules (CLasses & Methods)
 
-### Data Methods
+### Data
 
 #### get_data()
 * **Parameters**:
@@ -114,7 +120,7 @@ list_data_sets = Data().get_data()
 * **Usage**:
   * Uses create_data() to create a static data set, then uses append_data() to add the input data to it. Note: Input must be a dataframe.
   
-### rebuild_data()
+#### rebuild_data()
 * **Parameters**:
   * **rec_id** : int - id of your data in ClicData
   * **method** : str - reload method to refresh the data with [
@@ -144,27 +150,83 @@ list_data_sets = Data().get_data()
 * **Usage**:
   * Deletes rows from a dataset on your account based on the filters passed.
 
-### Dashboard Functions
+### Account
 
-* To Be Added
+#### get_account()
+* **Parameters**:
+ * **output** : str - Output format, either df or dict
+* **Endpoints**:
+ * Account Metrics: GET /account
+* **Usage**:
+ * Get details on account usage and limits
+ 
+#### get_account_activity()
+* **Parameters**:
+ * **entity** : str - Pull activity data for 'dashboards' vs 'users'
+ * **output** : string - Output format, either df or dict
+* **Endpoints**:
+ * User Activity: GET /account/activity/users
+ * Dashboard Activity: GET /account/activity/dashboards
+* **Usage**:
+ * Retrieve either dashboard or user activity
 
-### Account Functions
+### Dashboard
 
-* To Be Added
+#### get_dashboard()
+* **Parameters**:
+ * **thumbnail** : bool - Whether to include base64 copies of dashboard thumbnails
+ * *(Optional)* **name** : str - Filter dashboards by name
+ * **output** : string - Output format, either df or dict
+* **Endpoints**:
+ * Dashboard Details: GET /dashboard
+* **Usage**:
+ * Get details of all dashboards on an account
+
+#### get_dashboard_thumbnail()
+* **Parameters**:
+ * **name** : str : Filter dashboards by name
+ * **output** : string - Whether the function output a string or an image ['base64', 'image']
+* **Endpoints**:
+ * Dashboard Thumbnail: GET /dashboard/{id}/thumbnail
+* **Usage**:
+ * Returns thumbnail either ase base64 encoded string or image
+ 
+#### get_dashboard_snapshot()
+* **Parameters**:
+ * **name** : str : Filter dashboards by name
+ * **output** : string - Whether the function output a string or an image ['base64', 'image']
+* **Endpoints**:
+ * Dashboard Snapshot: GET /dashboard/{id}/snapshot
+* **Usage**:
+ * Returns snapshot either ase base64 encoded string or image
+
+### Schedule
+
+#### get_schedule()
+* **Parameters**:
+ * *(Optional)* **rec_id** : int - Id of your schedule in ClicData
+ * **output** : string - Output format, either df or dict
+* **Endpoints**:
+ * List Schedules: GET /schedule
+ * Schedule Details: GET /schedule/{id}
+* **Usage**:
+ * Get details of all schedules on an account or single schedule if rec_id is passed
+
+#### trigger_schedule()
+* **Parameters**:
+ * **rec_id** : int - Id of your schedule in ClicData
+* **Endpoints**:
+ * Trigger Schedule: POST /schedule/{id}/trigger
+* **Usage**:
+ * Trigger a specified schedule by id
+ 
 
 ## To Do:
 
-### Planned Methods:
+### Planned Method Endpoints:
 
 * **Data:**
   * Update Data: PUT /data/{id}/row
-* **Account:**
-  * User Activity: GET /account/activity/users
-  * Dashboard Activity: GET /account/activity/dashboards
-* **Schedule:**
-  * List Schedules: GET /schedule
-  * Schedule Details: GET /schedule/{id}
-  * Trigger Schedule: POST /schedule/{id}/trigger
 * **Team:**
   * List Teams: GET /team
   * Create Team: POST /team
