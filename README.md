@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     # Ignores the SessionManager initiation and uses an isolated session
     # Useful for pushing to or modifying a second account
-    table2 = Data(client_id=client_id, client_secret=client_secret).get_data(rec_id=1234567)
+    table2 = Data(client_id=client_id, client_secret=client_secret).get_data()
 ```
 
 ## Currently working:
