@@ -127,6 +127,27 @@ class Session:
         elif request_method == 'put':
             response = requests.put(endpoint, params=params, headers=headers, json=body)
         else:
-            raise Exception("Please enter a valid request_method str.")
+            raise Exception("Please enter a valid request_method as a string")
         return response
+
+
+class SessionManager:
+    __session = None
+
+    @classmethod
+    def bind_session(cls, session):
+        cls.__session = session
+
+    @classmethod
+    def get_session(cls):
+        if cls.__session is None:
+            raise Exception("You need to create a session using SessionManager" +
+                            " or pass connection parameters to your module class.")
+        return cls.__session
+
+    def __init__(self, **connection_params):
+        session = Session(**connection_params)
+        self.bind_session(session)
+
+
 
