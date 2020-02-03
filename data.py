@@ -1,4 +1,5 @@
 import requests
+from clicwrapper.session import Session
 import pandas as pd
 
 
@@ -6,23 +7,22 @@ import pandas as pd
 # Helper Functions
 ###
 
-def retrieve_paginated_data(session=None, endpoint=None):
+def retrieve_paginated_data(session=None, suffix=None):
     page = 1
     has_more_data = True
     data = []
     while has_more_data:
-        session.reinitialize()
-        d = requests.get(endpoint,
-                         headers=session.header,
-                         params={"page": page})
-        if d.status_code == 200:
-            has_more_data = d.json().get('has_more_data')
+        page_response = session.api_call(suffix=suffix,
+                                         request_method='get',
+                                         params={"page": page})
+        if page_response.status_code == 200:
+            has_more_data = page_response.json().get('has_more_data')
             page += 1
-            data = data + d.json().get('data')
+            data = data + page_response.json().get('data')
         else:
             has_more_data = False
-            print(f"Ran into issues processing your request \nStatus Code: {d.status_code}\n" +
-                  f"Content: {d.text}\nData processed before the error returned")
+            print(f"Ran into issues processing your request \nStatus Code: {page_response.status_code}\n" +
+                  f"Content: {page_response.text}\nData processed before the error returned")
     return data
 
 
@@ -38,19 +38,20 @@ def get_data(session=None, rec_id=None, output='df'):
     output : str
         Output format, either df or dict
     """
-    if type(rec_id) != int:
-        endpoint = session.url + "data"
+    if rec_id is None:
         # Check token for expiry
-        session.reinitialize()
-        data = requests.get(endpoint, headers=session.header)
+        data = session.api_call(suffix='data', request_method='get')
         # return data.json()
         if output == 'df':
             return pd.DataFrame.from_dict(data.json().get('data'))
         elif output == 'dict':
             return data.json().get('data')
+    elif type(rec_id) != int:
+        raise Exception("Please enter a valid rec_id as int.")
     else:
-        endpoint = f"{session.url}data/{rec_id}"
-        data = retrieve_paginated_data(session=session, endpoint=endpoint)
+        suffix = f"data/{rec_id}"
+        data = retrieve_paginated_data(session=session,
+                                       suffix=suffix)
         if output == 'df':
             return pd.DataFrame.from_dict(data)
         elif output == 'dict':
@@ -73,10 +74,8 @@ def get_data_history(session=None, id=None, ver_id=None, output='df'):
         raise Exception('Please enter a valid data clone RecId.')
     else:
         if ver_id is None:
-            endpoint = session.url + f"data/{id}/versions"
-            # Check token for expiry
-            session.reinitialize()
-            data = requests.get(endpoint, headers=session.header)
+            suffix = f"data/{id}/versions"
+            data = session.api_call(suffix=suffix)
             if output == 'df':
                 df = pd.DataFrame.from_dict(data.json().get('versions'))
                 df["data_rec_id"] = id
@@ -87,8 +86,9 @@ def get_data_history(session=None, id=None, ver_id=None, output='df'):
                     version.update({"data_rec_id": id})
                 return data_dict
         else:
-            endpoint = session.url + f"data/{id}/v/{ver_id}"
-            data = retrieve_paginated_data(session=session, endpoint=endpoint)
+            suffix = f"data/{id}/v/{ver_id}"
+            data = retrieve_paginated_data(session=session,
+                                           suffix=suffix)
             if output == 'df':
                 return pd.DataFrame.from_dict(data)
             elif output == 'dict':
@@ -126,7 +126,7 @@ def create_data(session=None, name=None, description="", cols=None):
            {"columnName":"type",\n
            "columnName":"type"}""")
     else:
-        endpoint = f"{session.url}data"
+        suffix = "data"
         columns = []
         for i in cols.keys():
             data_type = pandas_convert[cols[i].name]
@@ -141,9 +141,10 @@ def create_data(session=None, name=None, description="", cols=None):
             "description": description,
             "columns": columns
         }
-        # Check token for expiry
-        session.reinitialize()
-        post = requests.post(endpoint, headers=session.header, json=body)
+        post = session.api_call(suffix=suffix,
+                                headers=session.header,
+                                body=body,
+                                request_method='post')
         return post
 
 
@@ -161,7 +162,7 @@ def append_data(session=None, rec_id=None, data=None):
     elif data is None:
         raise Exception('Please enter a data set to append')
     else:
-        endpoint = session.url + f'data/{rec_id}/row'
+        suffix = f'data/{rec_id}/row'
         formatted_data = data.to_dict(orient='index')
         data_set = []
         for k, v in formatted_data.items():
@@ -174,11 +175,10 @@ def append_data(session=None, rec_id=None, data=None):
         body = {
             "data": data_set
         }
-        # Check token for expiry
-        session.reinitialize()
-        post = requests.post(endpoint,
-                             headers=session.header,
-                             json=body)
+        post = session.api_call(suffix=suffix,
+                                headers=session.header,
+                                body=body,
+                                request_method='put')
         return post
 
 
@@ -232,8 +232,8 @@ def rebuild_data(session=None, rec_id=None, method='reload'):
     if method not in valid_methods:
         raise Exception(f"Please enter a valid method: {valid_methods}")
 
-    endpoint = f"{session.url}data/{rec_id}/{method}"
-    response = requests.post(endpoint, header=session.header)
+    suffix = f"data/{rec_id}/{method}"
+    response = session.api_call(suffix=suffix, request_method='post')
     return response.text
 
 
@@ -254,7 +254,7 @@ def delete_data(session=None, rec_id=None, filters=None, multiple_rows='all'):
     if filters is None or type(filters) != dict:
         raise Exception("Please enter a dict of column names (keys) and values to filter.")
     else:
-        endpoint = f"{session.url}data/{rec_id}/row"
+        suffix = f"data/{rec_id}/row"
         find = []
         for k, v in filters.items:
             cell = {"column": k,
@@ -266,7 +266,9 @@ def delete_data(session=None, rec_id=None, filters=None, multiple_rows='all'):
         }
         # Check token for expiry
         session.reinitialize()
-        delete = requests.delete(endpoint, body=body, headers=session.header)
+        delete = session.api_call(request_method='delete',
+                                  suffix=suffix,
+                                  body=body)
         return delete.text
 
 

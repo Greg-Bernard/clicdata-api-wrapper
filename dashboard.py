@@ -17,16 +17,16 @@ def get_dashboard(session=None, thumbnail=False, name=None, output='df'):
     output : str
         Output format, either df or dict
     """
-    endpoint = session.url + "dashboard"
+    suffix = "dashboard"
     if name is not None:
         params = {"includethumbnail": thumbnail,
                   "name": name}
     else:
         params = {"includethumbnail": thumbnail}
 
-    dashboards = requests.get(f"{endpoint}",
-                              params=params,
-                              headers=session.header)
+    dashboards = session.api_call(suffix=suffix,
+                                  params=params,
+                                  request_method='get')
 
     if output == 'df':
         return pd.DataFrame.from_dict(dashboards.json().get('dashboards'))
@@ -45,9 +45,9 @@ def get_dashboard_thumbnail(session=None, rec_id=None, output='base64'):
     """
     if type(rec_id) != int:
         raise Exception("Please enter a valid rec_id integer.")
-    endpoint = session.url + "account/" + rec_id + "/thumbnail"
-    thumbnail = requests.get(f"{endpoint}",
-                             headers=session.header)
+    suffix = "account/" + rec_id + "/thumbnail"
+    thumbnail = session.api_call(suffix=suffix,
+                                 request_method='get')
     if output == 'base64':
         return thumbnail.text
     elif output == 'image':
@@ -68,9 +68,9 @@ def get_dashboard_snapshot(session=None, rec_id=None, output='base64'):
     """
     if type(rec_id) != int:
         raise Exception("Please enter a valid rec_id integer.")
-    endpoint = session.url + "account/" + rec_id + "/snapshot"
-    snapshot = requests.get(f"{endpoint}",
-                            headers=session.header)
+    suffix = "account/" + rec_id + "/snapshot"
+    snapshot = session.api_call(suffix=suffix,
+                                request_method='get')
     if output == 'base64':
         return snapshot.text
     elif output == 'image':

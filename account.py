@@ -12,9 +12,9 @@ def get_account(session=None, output='df'):
     output : str
         Output format, either df or dict
     """
-    endpoint = session.url + "account"
-    account = requests.get(f"{endpoint}",
-                           headers=session.header)
+    suffix = "account"
+    account = session.api_call(suffix=suffix,
+                               request_method='get')
     if output == 'df':
         return pd.DataFrame.from_dict(account.json())
     elif output == 'dict':
@@ -33,9 +33,10 @@ def get_account_activity(session=None, entity='users', output='df'):
     valid_entities = ['users', 'dashboards']
     if entity not in valid_entities:
         raise Exception("Please enter a valid entity: "+str(valid_entities))
-    endpoint = session.url + "account/activity/" + entity
-    activity = requests.get(f"{endpoint}",
-                            headers=session.header)
+    suffix = "account/activity/" + entity
+    activity = session.api_call(suffix=suffix,
+                                headers=session.header,
+                                request_method='get')
 
     if output == 'df':
         return pd.DataFrame.from_dict(activity.json())

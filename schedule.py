@@ -13,13 +13,13 @@ def get_schedule(session=None, rec_id=None, output='df'):
     """
     if session is None:
         raise Exception("Please enter a valid Session() object.")
-    endpoint = session.url + "schedule"
+    suffix = "schedule"
     if type(rec_id) == int:
-        schedules = requests.get(f"{endpoint}/{rec_id}",
-                                 headers=session.header)
+        schedules = session.api_call(suffix=f"{suffix}/{rec_id}",
+                                     request_method='get')
     else:
-        schedules = requests.get(f"{endpoint}",
-                                 headers=session.header)
+        schedules = session.api_call(suffix=suffix,
+                                     request_method='get')
 
     if output == 'df':
         return pd.DataFrame.from_dict(schedules.json().get('schedules'))
@@ -29,21 +29,19 @@ def get_schedule(session=None, rec_id=None, output='df'):
         raise Exception("Please enter a valid output: ['df', 'dict'].")
 
 
-def trigger_schedule(session=None, rec_id=None, output='df'):
+def trigger_schedule(session=None, rec_id=None):
     """Trigger a specified schedule by id
     session : custom class
         Session class passed from ClicData session module
     rec_id : int
             Id of your schedule in ClicData
-    output : str
-        Output format, either df or dict
     """
     if session is None:
         raise Exception("Please enter a valid Session() object.")
     if type(rec_id) == int:
-        endpoint = session.url + f"schedule/{rec_id}/trigger"
-        response = requests.post(f"{endpoint}",
-                                 headers=session.header)
+        suffix = f"schedule/{rec_id}/trigger"
+        response = session.api_call(suffix=suffix,
+                                    request_method='get')
     else:
         raise Exception("Please enter a valid rec_id as an integer.")
 

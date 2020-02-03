@@ -1,5 +1,3 @@
-import oauthlib.oauth2
-from requests_oauthlib import OAuth2Session
 import requests
 from datetime import datetime
 from datetime import timedelta
@@ -93,4 +91,42 @@ class Session:
                 self.header = {"Authorization": "Bearer " + self.access_token,
                                "accept": "application/json"}
 
+    def api_call(self, suffix=None, request_method=None, params='', headers=None, body=None):
+        """
+        Perform API call with provided method and additional criteria
+        suffix : str
+        request_method : str
+            method to use (get, post, delete, put, etc...)
+        params : dict
+            query string parameters to add to the request
+        headers : dict
+            additional headers to pass in addition to authorization
+        body : dict
+             data to send with the request
+        return: request return
+        """
+        # Check if token is still valid, if not, re-initialize
+        self.reinitialize()
+        endpoint = self.url + suffix
+
+        # Check if additional headers are provided
+        if type(headers) == dict:
+            headers = self.header.update(headers)
+        elif headers is not None:
+            raise Exception("The header type entered is invalid. Please provide type dict.")
+        else:
+            headers = self.header
+
+        # Check which API method is being used
+        if request_method == 'get':
+            response = requests.get(endpoint, params=params, headers=headers)
+        elif request_method == 'post':
+            response = requests.post(endpoint, params=params, headers=headers, json=body)
+        elif request_method == 'delete':
+            response = requests.delete(endpoint, params=params, headers=headers)
+        elif request_method == 'put':
+            response = requests.put(endpoint, params=params, headers=headers, json=body)
+        else:
+            raise Exception("Please enter a valid request_method str.")
+        return response
 
