@@ -244,29 +244,3 @@ class Data:
                                            suffix=suffix,
                                            body=body)
             return delete.text
-
-
-###
-# WIP ---------------------------------------------------------------------------------
-def update_data(session=None, rec_id=None, data=None, filters=None, multiple_rows='all'):
-    ###
-    # Replace matching data in ClicData data file based on filter provided
-    ###
-
-    # Check token for expiry
-    session.reinitialize()
-    auth_header = {"Authorization": "Bearer " + session.access_token}
-
-    if type(rec_id) != int:
-        raise Exception('Please enter a valid data clone RecId.')
-    elif data is None:
-        raise Exception('Please provide data to insert')
-    else:
-        endpoint = f"{session.url}data/{rec_id}/row"
-        if filters is not None:
-            {}
-        body = {
-            "multiplerows": multiple_rows,
-            "find": [],
-            "data": []
-        }
