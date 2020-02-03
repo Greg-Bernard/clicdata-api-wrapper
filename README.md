@@ -33,6 +33,15 @@ if __name__ == '__main__':
 
 ## Classes
 
+* **[Session](https://github.com/Greg-Bernard/clicdata-api-wrapper/blob/master/README.md#session)**
+* **[SessionManager](https://github.com/Greg-Bernard/clicdata-api-wrapper/blob/master/README.md#sessionmanager)**
+* **[Data](https://github.com/Greg-Bernard/clicdata-api-wrapper/blob/master/README.md#data)**
+* **[Account](https://github.com/Greg-Bernard/clicdata-api-wrapper/blob/master/README.md#account)**
+* **[Dashboard](https://github.com/Greg-Bernard/clicdata-api-wrapper/blob/master/README.md#dashboard)**
+* **[Schedule](https://github.com/Greg-Bernard/clicdata-api-wrapper/blob/master/README.md#schedule)**
+* **[To Do](https://github.com/Greg-Bernard/clicdata-api-wrapper/blob/master/README.md#planned-method-endpoints)**
+
+
 ### Session
 * **Parameters**:
   * **auth_method** : Session - accepts session class as input to authenticate
