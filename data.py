@@ -150,7 +150,7 @@ class Data:
             suffix = f'data/{rec_id}/row'
             formatted_data = data.to_dict(orient='index')
             data_set = []
-            for k, row_dict in formatted_data.items():
+            for row_dict in formatted_data.values():
                 row = []
                 for column, value in row_dict.items():
                     cell = {"column": column,
@@ -162,8 +162,8 @@ class Data:
             }
             post = self.session.api_call(suffix=suffix,
                                          body=body,
-                                         request_method='put')
-            return post
+                                         request_method='post')
+            return post.text
 
     def create_and_append(self, name=None, description="", data=None):
         """ Creates a static data set in ClicData using a pandas dataframe
@@ -190,7 +190,7 @@ class Data:
                     f'There appears to be an issue with the connection. Creating data set returned:\n{rec_id.text}')
             status = self.append_data(rec_id=rec_id,
                                       data=data)
-        return status.text
+        return {'rec_id': rec_id, 'status': status}
 
     def rebuild_data(self, rec_id=None, method='reload'):
         """ Rebuild a data set using the specified method
