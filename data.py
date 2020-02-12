@@ -181,8 +181,7 @@ class Data:
             }
             post = self.session.api_call(suffix=suffix,
                                          body=body,
-                                         request_method='post')
-            return post
+            return post.text
 
     def create_and_append(self, name=None, description="", data=None):
         """ Creates a static data set in ClicData using a pandas dataframe
