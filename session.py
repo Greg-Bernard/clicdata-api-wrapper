@@ -8,13 +8,9 @@ class Session:
     """
     Class Session used to initiate and maintain connection to ClicData API
 
-    Class Variables:
-    url : str
-        ClicData base API URL
-    access_token : str
-        Access token for ClicData API
-    token_expire_time : datetime
-        Datetime that the token expires
+    Class Methods:
+    api_call()
+        Intended to handle all calls to ClicData while using this library
     """
     # To do: re-organize variables as **kwargs
     def __init__(self,
@@ -34,8 +30,8 @@ class Session:
         self.auth_method = auth_method
 
         if auth_method == 'client_credentials':
-            self.client_id = client_id
-            self.client_secret = client_secret
+            self._client_id = client_id
+            self._client_secret = client_secret
             token_type = 'Bearer '
             self.access_token, self.token_expire_time, _ = self._initialize()
         elif auth_method == 'basic':
@@ -46,7 +42,7 @@ class Session:
             elif type(password) != str:
                 raise Exception("Please enter a valid password (string).")
             else:
-                self.client_id = client_id
+                self._client_id = client_id
                 up = username + ':' + password
                 base64_up = base64.b64encode(up.encode('utf-8'))
                 self.access_token = base64.b64encode(client_id.encode('utf-8') + base64_up)
@@ -72,8 +68,8 @@ class Session:
         """
         token_url = self.url + "oauth20/token"
         token_request_body = {"grant_type": "client_credentials",
-                              "client_id": self.client_id,
-                              "client_secret": self.client_secret}
+                              "client_id": self._client_id,
+                              "client_secret": self._client_secret}
         token = requests.post(token_url,
                               data=token_request_body)
         status_code = token.status_code
@@ -91,7 +87,7 @@ class Session:
                 self.header = {"Authorization": "Bearer " + self.access_token,
                                "accept": "application/json"}
 
-    def api_call(self, suffix=None, request_method=None, params='', headers=None, body=None):
+    def api_call(self, suffix=None, request_method=None, params=None, headers=None, body=None):
         """
         Perform API call with provided method and additional criteria
         suffix : str
@@ -116,6 +112,12 @@ class Session:
             raise Exception("The header type entered is invalid. Please provide type dict.")
         else:
             headers = self.header
+
+        # Check if any parameters are passed as a dictionary
+        if params is None:
+            params = ''
+        elif type(params) != dict:
+            raise Exception("The params type entered is invalid. Please provide type dict.")
 
         # Check which API method is being used
         if request_method == 'get':

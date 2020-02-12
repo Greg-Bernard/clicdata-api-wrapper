@@ -1,4 +1,4 @@
-from clicdata_api_wraper.session import Session, SessionManager
+from clicdata_api_wrapper.session import Session, SessionManager
 import pandas as pd
 
 
@@ -28,17 +28,37 @@ class Data:
                       f"Content: {page_response.text}\nData processed before the error returned")
         return data
 
-    def get_data(self, rec_id=None, output='df'):
+    def get_data(self, rec_id=None, name=None, unique_key_available=None, refresh=None, output='df'):
         """Retrieve list of data sources or retrieve the contents of a data source
         rec_id : int
             RecId of the data you want to retrieve
+        name : str
+            data set name based filter to apply
+        unique_key_available : bool
+            filter data sets based on whether they're using unique keys
+        refresh : bool
+            filter data sets based on whether they're refresh-able (non-static)
         output : str
             Output format, either df or dict
         """
         if rec_id is None:
-            # Check token for expiry
-            data = self.session.api_call(suffix='data', request_method='get')
-            # return data.json()
+            # Add parameter string based on input
+            params = {}
+            if type(name) == str:
+                params["name"] = name
+            if type(unique_key_available) == bool:
+                params["uniquekeyavailable"] = unique_key_available
+            if type(refresh) == bool:
+                params["refresh"] = refresh
+            if params:
+                # Use api_call to grab list of data sets
+                data = self.session.api_call(suffix='data',
+                                             request_method='get',
+                                             params=params)
+            else:
+                # Use api_call to grab list of data sets
+                data = self.session.api_call(suffix='data', request_method='get')
+
             if output == 'df':
                 return pd.DataFrame.from_dict(data.json().get('data'))
             elif output == 'dict':
@@ -52,7 +72,6 @@ class Data:
                 return pd.DataFrame.from_dict(data)
             elif output == 'dict':
                 return data
-            # return pd.DataFrame.from_dict(data.json().get('data'))
 
     def get_data_history(self, rec_id=None, ver_id=None, output='df'):
         """Retrieve list of data sources or retrieve the contents of a data source
@@ -150,7 +169,7 @@ class Data:
             suffix = f'data/{rec_id}/row'
             formatted_data = data.to_dict(orient='index')
             data_set = []
-            for k, row_dict in formatted_data.items():
+            for row_dict in formatted_data.values():
                 row = []
                 for column, value in row_dict.items():
                     cell = {"column": column,
@@ -162,7 +181,7 @@ class Data:
             }
             post = self.session.api_call(suffix=suffix,
                                          body=body,
-                                         request_method='put')
+                                         request_method='post')
             return post
 
     def create_and_append(self, name=None, description="", data=None):
@@ -190,7 +209,7 @@ class Data:
                     f'There appears to be an issue with the connection. Creating data set returned:\n{rec_id.text}')
             status = self.append_data(rec_id=rec_id,
                                       data=data)
-        return status.text
+        return {'rec_id': rec_id, 'status': status.text}
 
     def rebuild_data(self, rec_id=None, method='reload'):
         """ Rebuild a data set using the specified method
