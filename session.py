@@ -13,12 +13,15 @@ class Session:
         Intended to handle all calls to ClicData while using this library
     """
     # To do: re-organize variables as **kwargs
-    def __init__(self,
-                 auth_method='client_credentials',
-                 client_id=None,
-                 client_secret=None,
-                 username=None,
-                 password=None):
+    def __init__(
+        self,
+        auth_method='client_credentials',
+        client_id=None,
+        client_secret=None,
+        username=None,
+        password=None,
+        **kwargs
+    ):
         """
         Parameters
         client_id : str
@@ -26,7 +29,7 @@ class Session:
         client_secret : str
             Client secret provided from your ClicData account
         """
-        self.url = "https://api.clicdata.com/"
+        self.url = kwargs.get('url', "https://api.clicdata.com/")
         self.auth_method = auth_method
 
         if auth_method == 'client_credentials':
@@ -34,6 +37,7 @@ class Session:
             self._client_secret = client_secret
             token_type = 'Bearer '
             self.access_token, self.token_expire_time, _ = self._initialize()
+            
         elif auth_method == 'basic':
             if type(client_id) != str:
                 raise Exception("Please enter a valid client_id (string).")
@@ -48,6 +52,7 @@ class Session:
                 self.access_token = base64.b64encode(client_id.encode('utf-8') + base64_up)
                 token_type = 'Basic '
                 self.auth_method = 'basic'
+
         elif auth_method == 'authorization_code':
             # To be developed
             raise Exception("Authorization code is not a supported authentication method yet.")
@@ -56,8 +61,10 @@ class Session:
             raise Exception("Please provide a valid authentication type. Choose from:\n"+
                             "basic, client_credentials, or authorization code")
 
-        self.header = {"Authorization": token_type + self.access_token,
-                       "accept": "application/json"}
+        self.header = {
+            "Authorization": token_type + self.access_token,
+            "accept": "application/json"
+        }
 
     ###
     # Methods
@@ -87,7 +94,14 @@ class Session:
                 self.header = {"Authorization": "Bearer " + self.access_token,
                                "accept": "application/json"}
 
-    def api_call(self, suffix=None, request_method=None, params=None, headers=None, body=None):
+    def api_call(
+        self, 
+        suffix=None, 
+        request_method=None, 
+        params=None, 
+        headers=None, 
+        body=None
+    ):
         """
         Perform API call with provided method and additional criteria
         suffix : str
@@ -114,7 +128,7 @@ class Session:
             headers = self.header
 
         # Check if any parameters are passed as a dictionary
-        if params is None:
+        if not params:
             params = ''
         elif type(params) != dict:
             raise Exception("The params type entered is invalid. Please provide type dict.")
@@ -134,6 +148,10 @@ class Session:
 
 
 class SessionManager:
+    """
+    A class to maintain a connection for the current session.
+    Designed to work with an open session in a Jupyter notebook.
+    """
     __session = None
 
     @classmethod

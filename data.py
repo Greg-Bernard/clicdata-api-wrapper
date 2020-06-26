@@ -10,7 +10,10 @@ class Data:
         else:
             self.session = SessionManager.get_session()
 
-    def retrieve_paginated_data(self, suffix=None):
+    def retrieve_paginated_data(
+        self, 
+        suffix=None
+    ):
         page = 1
         has_more_data = True
         data = []
@@ -28,7 +31,14 @@ class Data:
                       f"Content: {page_response.text}\nData processed before the error returned")
         return data
 
-    def get_data(self, rec_id=None, name=None, unique_key_available=None, refresh=None, output='df'):
+    def get_data(
+        self, 
+        rec_id=None, 
+        name:str=None, 
+        unique_key_available:bool=None, 
+        refresh:bool=None, 
+        output='df'
+    ):
         """Retrieve list of data sources or retrieve the contents of a data source
         rec_id : int
             RecId of the data you want to retrieve
@@ -44,27 +54,31 @@ class Data:
         if rec_id is None:
             # Add parameter string based on input
             params = {}
-            if type(name) == str:
-                params["name"] = name
-            if type(unique_key_available) == bool:
+
+            if name:
+                params["name"] = str(name)
+
+            if unique_key_available:
                 params["uniquekeyavailable"] = unique_key_available
-            if type(refresh) == bool:
+
+            if refresh:
                 params["refresh"] = refresh
-            if params:
-                # Use api_call to grab list of data sets
-                data = self.session.api_call(suffix='data',
-                                             request_method='get',
-                                             params=params)
-            else:
-                # Use api_call to grab list of data sets
-                data = self.session.api_call(suffix='data', request_method='get')
+
+            # Use api_call to grab list of data sets
+            data = self.session.api_call(
+                suffix='data',
+                request_method='get',
+                params=params
+            )
 
             if output == 'df':
                 return pd.DataFrame.from_dict(data.json().get('data'))
             elif output == 'dict':
                 return data.json().get('data')
+
         elif type(rec_id) != int:
             raise Exception("Please enter a valid rec_id as int.")
+
         else:
             suffix = f"data/{rec_id}"
             data = self.retrieve_paginated_data(suffix=suffix)
@@ -73,7 +87,12 @@ class Data:
             elif output == 'dict':
                 return data
 
-    def get_data_history(self, rec_id=None, ver_id=None, output='df'):
+    def get_data_history(
+        self, 
+        rec_id=None, 
+        ver_id=None, 
+        output='df'
+    ):
         """Retrieve list of data sources or retrieve the contents of a data source
         rec_id : int
             RecId of the data set you want to check history for
@@ -105,7 +124,12 @@ class Data:
                 elif output == 'dict':
                     return data
 
-    def create_data(self, name=None, description="", cols=None):
+    def create_data(
+        self, 
+        name=None, 
+        description="", 
+        cols=None
+    ):
         """Creates an empty custom table in ClicData
         name: str
             Name of data table created in ClicData. Must be unique to account.
@@ -115,7 +139,16 @@ class Data:
             Column name as key, data type as value.
         """
         # List of valid ClicData data types to input
-        valid_data_types = ['text', 'number', 'datetime', 'date', 'percentage', 'checkbox', 'dropdown', 'rec_id']
+        valid_data_types = [
+            'text', 
+            'number', 
+            'datetime', 
+            'date', 
+            'percentage', 
+            'checkbox', 
+            'dropdown', 
+            'rec_id'
+        ]
         # Dictionary containing Pandas data types and the converted type for ClicData
         pandas_convert = {
             'object': 'text',
@@ -144,17 +177,26 @@ class Data:
                 column_def = {"name": column_name,
                               "data_type": data_type}
                 columns.append(column_def)
+
             body = {
                 "name": name,
                 "description": description,
                 "columns": columns
             }
-            post = self.session.api_call(suffix=suffix,
-                                         body=body,
-                                         request_method='post')
+
+            post = self.session.api_call(
+                suffix=suffix,
+                body=body,
+                request_method='post'
+            )  
+
             return post
 
-    def append_data(self, rec_id=None, data=None):
+    def append_data(
+        self, 
+        rec_id=None, 
+        data=None
+    ):
         """Append your data to an existing data set
         rec_id : int
             rec_id of your data in ClicData
@@ -179,11 +221,19 @@ class Data:
             body = {
                 "data": data_set
             }
-            post = self.session.api_call(suffix=suffix,
-                                         body=body,
+            post = self.session.api_call(
+                suffix=suffix,
+                body=body,
+                method='post'
+            )
+
             return post.text
 
-    def create_and_append(self, name=None, description="", data=None):
+    def create_and_append(
+        self, name=None, 
+        description="", 
+        data=None
+    ):
         """ Creates a static data set in ClicData using a pandas dataframe
         name : str
             Name of data set to create, must be unique to your account
@@ -198,19 +248,32 @@ class Data:
             raise Exception('Please enter a data.')
         else:
             columns = data.dtypes.to_dict()
-            rec_id = self.create_data(name=name,
-                                      description=description,
-                                      cols=columns)
+            rec_id = self.create_data(
+                name=name,
+                description=description,
+                cols=columns
+            )
+
             try:
                 rec_id = int(rec_id.text)
             except ValueError as e:
                 raise Exception(
-                    f'There appears to be an issue with the connection. Creating data set returned:\n{rec_id.text}')
-            status = self.append_data(rec_id=rec_id,
-                                      data=data)
+                    f'There appears to be an issue with the connection. Creating data set returned:\n{rec_id.text}\n'+
+                    f'Error text: {e}'
+                )
+
+            status = self.append_data(
+                rec_id=rec_id,
+                data=data
+            )
+
         return {'rec_id': rec_id, 'status': status.text}
 
-    def rebuild_data(self, rec_id=None, method='reload'):
+    def rebuild_data(
+        self, 
+        rec_id=None, 
+        method='reload'
+    ):
         """ Rebuild a data set using the specified method
         rec_id : int
             rec_id of your data in ClicData
@@ -224,6 +287,7 @@ class Data:
             "updateappend",
             "append"
         ]
+
         if type(rec_id) != int:
             raise Exception("Please enter a valid data clone RecId as an integer.")
         if method not in valid_methods:
@@ -231,9 +295,15 @@ class Data:
 
         suffix = f"data/{rec_id}/{method}"
         response = self.session.api_call(suffix=suffix, request_method='post')
+
         return response.text
 
-    def delete_data(self, rec_id=None, filters=None, multiple_rows='all'):
+    def delete_data(
+        self, 
+        rec_id=None, 
+        filters=None, 
+        multiple_rows='all'
+    ):
         """ Deletes rows from a specified data set.
         name : str
             Name of data set to create, must be unique to your account
@@ -242,7 +312,6 @@ class Data:
         data : pandas.Dataframe
             Data to upload
         """
-
         if type(rec_id) != int:
             raise Exception('Please enter a valid data clone RecId as an integer.')
         if filters is None or type(filters) != dict:
@@ -254,11 +323,16 @@ class Data:
                 cell = {"column": k,
                         "value": v}
                 find.append(cell)
+
             body = {
                 "multiplerows": multiple_rows,
                 "find": find
             }
-            delete = self.session.api_call(request_method='delete',
-                                           suffix=suffix,
-                                           body=body)
+
+            delete = self.session.api_call(
+                request_method='delete',
+                suffix=suffix,
+                body=body
+            )
+
             return delete.text
