@@ -1,2 +1,0 @@
-export CLIENT_ID="JZ9PmMKJ3yplAFREGXlFiC2d"
-export CLIENT_SECRET="K3UhWeYSa3orjz6JbvNzsUR3BXAajWr0"
