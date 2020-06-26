@@ -12,7 +12,7 @@ Right now this is an early alpha version with limited type checking and error ha
 
 **Example Use:**
 Returns list of all dashboards on your account with additional meta data
-```
+```py
 from clicdata_api_wraper.session import SessionManager
 from clicdata_api_wraper.data import Data
 
@@ -59,7 +59,7 @@ This class is used by SessionManager to open a single session for the entire run
 This class intializes Session as a class parameter and uses @classmethod to persist the session token through all modules used in this library. It's passed automatically to other classes as a parameter unless otherwise specified.
   
 **Client Credentials Example:**
-```
+```py
 SessionManager(
   auth_method='client_credentials', 
   client_id='youridhere', 
@@ -70,7 +70,7 @@ list_data_sets = Data().get_data()
 *returns dataframe containing list of data on your account*
 
 **Basic Auth Example:**
-```
+```py
 SessionManager(
   auth_method='basic', 
   client_id='youridhere', 
