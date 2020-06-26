@@ -25,7 +25,7 @@ if __name__ == '__main__':
     table1 = Data().get_data()
 
     # Ignores the SessionManager initiation and uses an isolated session
-    # Useful for pushing to or modifying a second account
+    # Useful for pushing to or modifying on a second account
     table2 = Data(client_id=client_id, client_secret=client_secret).get_data()
 ```
 
@@ -60,19 +60,23 @@ This class intializes Session as a class parameter and uses @classmethod to pers
   
 **Client Credentials Example:**
 ```
-SessionManager(auth_method='client_credentials', 
-                   client_id='youridhere', 
-                   client_secret='yoursecrethere')
+SessionManager(
+  auth_method='client_credentials', 
+  client_id='youridhere', 
+  client_secret='yoursecrethere'
+)
 list_data_sets = Data().get_data()
 ```
 *returns dataframe containing list of data on your account*
 
 **Basic Auth Example:**
 ```
-SessionManager(auth_method='basic', 
-               client_id='youridhere', 
-               username='yourplaintextusername', 
-               password='yourplaintextpassword')
+SessionManager(
+  auth_method='basic', 
+  client_id='youridhere', 
+  username='yourplaintextusername', 
+  password='yourplaintextpassword'
+)
 list_data_sets = Data().get_data()
 ```
 *returns dataframe containing list of data on your account*
