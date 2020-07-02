@@ -89,7 +89,7 @@ list_data_sets = Data().get_data()
 * **Parameters**:
   * *(Optional)* **rec_id** : int - RecId of the data you want to retrieve
   * **output** : str - Output format, either df or dict
-* **Enpoints**:
+* **Endpoints**:
   * List Data: GET /data
   * Retrieve Data: GET /data/{id}
 * **Usage**:
@@ -100,7 +100,7 @@ list_data_sets = Data().get_data()
   * **rec_id** : int - RecId of the data you want to retrieve
   * *(Optional)* **ver_id** : int - Version ID of the data you want to retrieve from your data set
   * **output** : str - Output format, either df or dict
-* **Enpoints**:
+* **Endpoints**:
   * List Data History: GET /data/{id}/versions
   * Retrieve Historical Data: GET /data/{id}/v/{ver}
 * **Usage**:
@@ -111,7 +111,7 @@ list_data_sets = Data().get_data()
   * **name** : str - Name of data table created in ClicData. Must be unique to account.
   * *(Optional)* **desc** : str - Long form description attached to table in ClicData.
   * **cols** : dict - Column name as key, data type as value.
-* **Enpoints**:
+* **Endpoints**:
   * Create New Custom Table: POST /data
 * **Usage**:
   * Creates and empty custom data table on your ClicData account, which can then be appended to
@@ -120,7 +120,7 @@ list_data_sets = Data().get_data()
 * **Parameters**:
   * **rec_id** : int - id of your data in ClicData
   * **data** : pandas.Dataframe - df containing the data you want to append.
-* **Enpoints**:
+* **Endpoints**:
   * Append Data: POST /data/{id}/row
 * **Usage**:
   * Append your data to an existing dataset
