@@ -22,11 +22,11 @@ if __name__ == '__main__':
 
     # Initializes SessionManager which keeps a connection open for all moduels to use
     SessionManager(client_id=client_id, client_secret=client_secret)
-    table1 = Data().get_data()
+    list_of_tables = Data().get_data()
 
     # Ignores the SessionManager initiation and uses an isolated session
     # Useful for pushing to or modifying on a second account
-    table2 = Data(client_id=client_id, client_secret=client_secret).get_data()
+    list_of_tables_2 = Data(client_id=client_id, client_secret=client_secret).get_data()
 ```
 
 ## Currently working:
